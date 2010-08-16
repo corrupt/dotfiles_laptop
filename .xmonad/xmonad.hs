@@ -1,45 +1,45 @@
 -- imports {{{
 import XMonad hiding ( (|||) ) -- don't import the ||| operator, it comes in layoutcombinators
-import XMonad.ManageHook
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
- --hopefully making matlab run
-import XMonad.Hooks.SetWMName
-import XMonad.Hooks.EwmhDesktops
-import XMonad.Hooks.UrgencyHook
-import XMonad.Hooks.FadeInactive
-import XMonad.Hooks.ManageHelpers
-import XMonad.Util.Cursor
-import XMonad.Util.Run
-import XMonad.Util.Dmenu
-import XMonad.Util.Loggers
-import XMonad.Util.NamedWindows
-import XMonad.Util.WorkspaceCompare
-import XMonad.Layout.NoBorders
-import XMonad.Layout.ResizableTile
-import XMonad.Layout.HintedTile
-import XMonad.Layout.Grid
-import XMonad.Layout.Magnifier
-import XMonad.Layout.LayoutHints
-import XMonad.Layout.IM
-import XMonad.Layout.PerWorkspace
-import XMonad.Layout.Reflect
-import XMonad.Layout.LayoutCombinators
-import XMonad.Layout.Cross
-import XMonad.Layout.Named
-import XMonad.Layout.Maximize
-import XMonad.Layout.Simplest
-import XMonad.Layout hiding ( (|||) )
-import XMonad.Prompt
-import XMonad.Prompt.Shell
-import XMonad.Core
 import XMonad.Actions.GridSelect
 import XMonad.Actions.NoBorders
 import XMonad.Actions.Plane
+import XMonad.Core
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.FadeInactive
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers
+import XMonad.Hooks.SetWMName --hopefully making matlab run
+import XMonad.Hooks.UrgencyHook
+import XMonad.Layout hiding ( (|||) )
+import XMonad.Layout.Cross
+import XMonad.Layout.Grid
+import XMonad.Layout.HintedTile
+import XMonad.Layout.IM
+import XMonad.Layout.LayoutCombinators
+import XMonad.Layout.LayoutHints
+import XMonad.Layout.Magnifier
+import XMonad.Layout.Maximize
+import XMonad.Layout.Named
+import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Reflect
+import XMonad.Layout.ResizableTile
+import XMonad.Layout.Simplest
+import XMonad.ManageHook
+import XMonad.Prompt
+import XMonad.Prompt.Shell
+import XMonad.Util.Cursor
+import XMonad.Util.Dmenu
+import XMonad.Util.Loggers
+import XMonad.Util.NamedWindows
+import XMonad.Util.Run
+import XMonad.Util.WorkspaceCompare
+
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
-import System.Process
 import System.IO
+import System.Process
 import Data.List
 import Data.Maybe ( catMaybes, isJust )
 
@@ -75,29 +75,11 @@ myManageHook = (composeAll . concat $
        name = stringProperty "WM_NAME"
 
 
---myManageHook = composeAll --composeAll applies every hook, instead of composeOne which will stop after the first match
---    [ (role =? "gimp-toolbox" <||> role =? "gimp-image-window" <||> role =? "gimp-dock") --> (ask >>= doF . W.sink)
---    , name =? "Copying" --> doCenterFloat -- Krusader copy dialog
---	, className =? "Gimp" --> doF (W.shift "img")
---	, className =? "Gimp-2.6" --> doF (W.shift "img") -- sometimes gimp has "Gimp-2.6" as classname
---  , className =? "Pidgin" --> doF (W.shift "IM")
---  , className =? "Pidgin" --> doF (W.swapDown)
---  , className =? "Skype" --> doF (W.shift "IM")
---  , className =? "Skype" --> doF (W.swapDown)
---  , className =? "Firefox" --> doF (W.shift "web")
---  , className =? "." --> doFloat -- eclipse splash
---    , (className =? "truecrypt" <||> className =? "Truecrypt") --> doFloat -- Truecrypt password dialog
---    , (className =? "pcmanfm" <||> className =? "Pcmanfm") --> doF (W.shift "fm")
---    , (className =? "amarok" <||> className =? "Amarok") --> doF (W.shift "laut")
---    , isFullscreen --> doFullFloat -- fullscreen flash and stuff
---    , transience' -- focus parent windows of transient ones
---	]
---    where
---        role = stringProperty "WM_WINDOW_ROLE"
---        name = stringProperty "WM_NAME"
-
 newManageHook = manageDocks <+> myManageHook <+> manageHook defaultConfig
 
+
+-- My custom ThinkLight urgency hook. On thinkpads, this will flash the light
+-- <blinks> number of times when a window is set urgent
 data ThinkLightUrgencyHook = ThinkLightUrgencyHook
                     { blinks :: Int -- ^ number of times to blink the thinklight 
                     }
@@ -107,7 +89,8 @@ instance UrgencyHook ThinkLightUrgencyHook where
     urgencyHook ThinkLightUrgencyHook { blinks = d } w = do
     spawn ("thinkalert " ++ show d)
     return () 
-    
+
+-- My urgency hook with the ThinkLight hook
 myUrgencyHook = withUrgencyHook ThinkLightUrgencyHook
     { blinks = 2 } 
 
@@ -118,7 +101,7 @@ myLayoutHook = onWorkspace "IM" (named "myIM" imlayout) $
                named "myMagnifyTall" (myLayoutMods $ magnify tiled) |||
                named "myFull" (myLayoutMods $ noBorders Full) |||
                named "myCross" (myLayoutMods simpleCross) |||
-               named "multimedia" ( noBorders Simplest )
+               named "multimedia" (noBorders Simplest)
     where 
       tiled = ResizableTall nmaster delta ratio []
       -- imlayout makes pidgin and skype occupy 175px at either side of the screen and puts a regular tiled layout in the middle
@@ -133,13 +116,16 @@ myLayoutHook = onWorkspace "IM" (named "myIM" imlayout) $
       magnify = magnifiercz (1.2)
       myLayoutMods x = maximize $ avoidStruts $ layoutHintsToCenter $ smartBorders x
 
-myLogHook = ewmhDesktopsLogHook >> setWMName "LG3D"
 
+-- I haven't found out whether to set LG3D in startup or logHook. So I set them both
+myLogHook = ewmhDesktopsLogHook >> setWMName "LG3D"
 myStartupHook = setWMName "LG3D" >> setDefaultCursor xC_left_ptr
 --}}}
 
 -- defines {{{
 
+-- mtrDragger stuff for window resizing with the mouse
+-- this intruduced such wide gaps between windows that I decided to leave it for now
 mrtDraggerOffset :: Position
 mrtDraggerOffset = 1
 
@@ -149,7 +135,7 @@ mrtDraggerSize = 2
 myWorkspaces = ["main", "web", "fm", "IM", "img", "laut"] ++ map show [7 .. 8 :: Int]
 
 escapeColor :: String -> String
-escapeColor str = "'" ++ str ++ "'"
+escapeColor = wrap "'" "'"
 
 myModMask = mod4Mask
 myFont = "'-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*'"
@@ -269,11 +255,11 @@ ppTitleColor = dzenColor myFontColor ""
 ppUrgentColor = dzenColor "#1a1a1a" myFontColor
 
 myPP = dzenPP
-    { ppCurrent         = ppCurrentColor . \a -> image "window-active" ++ a ++ setFgColor ++ image "vspace" 
-    , ppVisible         = ppVisibleColor . wrapClickable
-    , ppHidden          = ppHiddenColor . (\a -> setFgColor ++ image "window" ++ setTextColor ++ a) . wrapClickable
+    { ppCurrent         = ppCurrentColor  . \a -> image "window-active" ++ a ++ setFgColor ++ image "vspace" 
+    , ppVisible         = ppVisibleColor  . wrapClickable
+    , ppHidden          = ppHiddenColor   . (\a -> setFgColor ++ image "window" ++ setTextColor ++ a) . wrapClickable
     , ppHiddenNoWindows = ppHiddenNWColor . (\wsId -> if (':' `elem` wsId) then drop 2 wsId else wsId) . wrapClickable
-    , ppUrgent          = ppUrgentColor . (\a -> image "window-active" ++ a ++ setTextColor ++ image "vspace") . dzenStrip 
+    , ppUrgent          = ppUrgentColor   . (\a -> image "window-active" ++ a ++ setTextColor ++ image "vspace") . dzenStrip 
     , ppLayout          = ppLayoutColor . wrapLayoutSwitch .
                           (\ x -> fill (case x of
                               "myTall"        -> "Tall"        ++ setFgColor ++ imagePad "tall"
