@@ -1,0 +1,20 @@
+out_to_console yes
+out_to_x no
+background yes
+update_interval 1
+total_run_times 0
+use_spacer none
+
+
+TEXT
+| ^i(/home/corrupt/.xmonad/images/pacman.xpm)^fg(\#cccccc) Updates: ^fg(\#59bbe8)${execi 600 pacman -Qu | wc -l} ^fg(\#cccccc)| \
+^fg(\#59bbe8)^i(/home/corrupt/.xmonad/images/load.xbm)^fg(\#cccccc) ${freq_g 1} GHz \
+^fg(\#59bbe8)(^fg(\#cccccc)${cpu cpu1}% ${cpu cpu2}%^fg(\#59bbe8)) ^fg(\#cccccc)| \
+^fg(\#59bbe8)^i(/home/corrupt/.xmonad/images/mem.xbm) ^fg(\#cccccc)$memperc% ^fg(\#cccccc)| \
+^fg(\#59bbe8)^i(/home/corrupt/.xmonad/images/battery/bat_${battery_percent BAT0}.xbm)^fg(\#cccccc) ${battery_time BAT0} \
+^fg(\#59bbe8)(^fg(\#cccccc)${battery_percent BAT0}%^fg(\#59bbe8)) ^fg(\#cccccc)| \
+^fg(\#59bbe8)^i(/home/corrupt/.xmonad/images/net-wifi5.xbm)^fg(\#cccccc) \
+${wireless_essid wlan0} ^fg(\#59bbe8)(^fg(\#cccccc)\
+${wireless_link_qual_perc wlan0}%^fg(\#59bbe8)) ^fg(\#cccccc)| \
+#^bg(\#59bbe8)^fg(\#1a1a1a)${time %a %b %d^fg(\#ffffff) %H:%M:%S} 
+^fg(\#59bbe8)${time %a} ^fg(\#cccccc)${time %b %d} ^bg(\#59bbe8)^fg(\#1a1a1a) ${time %H:%M} 

@@ -1,0 +1,4 @@
+keycode 166 = Page_Up
+keycode 167 = Page_Down
+remove Lock = Caps_Lock
+keycode 66 = Escape
