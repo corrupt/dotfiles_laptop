@@ -1,3 +1,7 @@
+# .zprofile -- loaded if login shell        .zshenv .zprofile .zshrc .zlogin
+# .zshenv -- always loaded                  .zshenv .zprofile .zshrc .zlogin
+# .zshrc -- loaded if interactive shell     .zshenv .zprofile .zshrc .zlogin
+
 # Lines configured by zsh-newuser-install {{{
 HISTFILE=~/.histfile
 HISTSIZE=100000
@@ -57,6 +61,8 @@ case "$TERM" in
 		bindkey '^[[8~' end-of-line #end-laptop
 		bindkey '^[[F' end-of-line #end on mac keyboard?
 		bindkey '^[[3~' delete-char #del
+		bindkey '^J' backward-word #crtl-j
+		bindkey '^K' forward-word #crtl-k
 		;;
 esac
 # }}}
@@ -78,24 +84,12 @@ alias pmc="pacman-color"
 
 #programs
 alias stardict='stardict -h'
-alias dmenu='dmenu -i -fn "-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*" -nb #1a1a1a -nf #6b6382 -sf #777777'
-alias tuvpn='sudo /usr/sbin/vpnc tu'
 
 # global
 alias -g G='|grep -i'
 alias -g L='|less'
 
 source .zsh-aliases
-
-# }}}
-
-# env variables {{{
-
-#setting editor to anything but vi obviously sets edit mode to emacs
-#which is more straightforward
-#should be covered by 'bindkey e' anyway
-export EDITOR=${EDITOR:-/usr/bin/vim}
-export PAGER=${PAGER:-/bin/less}
 
 # }}}
 
