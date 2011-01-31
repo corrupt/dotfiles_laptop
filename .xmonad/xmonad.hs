@@ -140,32 +140,36 @@ escapeColor = wrap "'" "'"
 myModMask = mod4Mask
 myFont = "'-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*'"
 
-myFgColor = "#59bbe8"
-myBgColor = "#0d0d0d"
-myFontColor = "#cccccc"
+-- myFgColor = "#59bbe8"
+myFgColor = "#59b9e8"
+myBgColor = "#080808"
+myFontColor = "#dddddd"
 
 myFocusedBorderColor = myFgColor
-myNormalBorderColor = myBgColor 
+--myNormalBorderColor = myBgColor 
+myNormalBorderColor = "#222222" 
 
 myPanelHeight = "16"
 myPanelY = "0"
 myTerminal = "urxvt"
 
-myMainPanelWidth = "490"
-myConkyPanelWidth = "680"
+myMainPanelWidth = "420"
+myConkyPanelWidth = "746"
 myTrayerWidth = "110"
 myTrayerMargin = "1170" --mainpanel + conkypanel
 
-myTrayerCmd  = "trayer "
-            ++ " --edge top "
-            ++ " --align left "
-            ++ " --margin " ++ myTrayerMargin 
-            ++ " --widthtype pixel "
-            ++ " --height " ++ myPanelHeight
-            ++ " --width " ++ myTrayerWidth
-            ++ " --transparent true "
-            ++ " --alpha 0 "
-            ++ " --tint 0x1A1A1A "
+myTrayCmd = "tint2"
+
+--myTrayCmd  = "trayer "
+--            ++ " --edge top "
+--            ++ " --align left "
+--            ++ " --margin " ++ myTrayerMargin 
+--            ++ " --widthtype pixel "
+--            ++ " --height " ++ myPanelHeight
+--            ++ " --width " ++ myTrayerWidth
+--            ++ " --transparent true "
+--            ++ " --alpha 0 "
+--            ++ " --tint 0x1A1A1A "
 
 myDzenFlags  = " -bg " ++ escapeColor myBgColor
             ++ " -fg " ++ escapeColor myFontColor
@@ -226,7 +230,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((myModMask .|. shiftMask, xK_g), spawn ("gimp"))
     , ((myModMask .|. shiftMask, xK_p), spawn ("pidgin"))
     , ((myModMask .|. shiftMask, xK_w), spawn (myTerminal ++ " -e wicd-curses"))
-    , ((myModMask, xK_q), spawn ("killall dzen2 ; killall conky ; killall trayer ; killall xcompmgr ; xmonad --recompile && xmonad --restart"))
+    , ((myModMask, xK_q), spawn ("killall dzen2 ; killall conky ; killall tint2 ; killall xcompmgr ; xmonad --recompile && xmonad --restart"))
     , ((myModMask, xK_F1), (sendMessage $ JumpToLayout "myTall"))
     , ((myModMask, xK_F2), (sendMessage $ JumpToLayout "myMirrorTall"))
     , ((myModMask, xK_F3), (sendMessage $ JumpToLayout "myMagnifyTall"))
@@ -255,13 +259,13 @@ ppTitleColor = dzenColor myFontColor ""
 ppUrgentColor = dzenColor "#1a1a1a" myFontColor
 
 myPP = dzenPP
-    { ppCurrent         = ppCurrentColor  . \a -> image "window-active" ++ a ++ setFgColor ++ image "vspace" 
-    , ppVisible         = ppVisibleColor  . wrapClickable
-    , ppHidden          = ppHiddenColor   . (\a -> setFgColor ++ image "window" ++ setTextColor ++ a) . wrapClickable
-    , ppHiddenNoWindows = ppHiddenNWColor . (\wsId -> if (':' `elem` wsId) then drop 2 wsId else wsId) . wrapClickable
+    { ppCurrent         = ppCurrentColor  . (\a -> image "window-active" ++ a ++ setFgColor ++ image "vspace")
+    , ppVisible         = ppVisibleColor  . wrapClickable . (\a -> (a,a))
+    , ppHidden          = ppHiddenColor   . wrapClickable . (\a -> (a, setFgColor ++ image "window" ++ setTextColor ++ a))
+    , ppHiddenNoWindows = ppHiddenNWColor . wrapClickable . (\a -> (a, if (':' `elem` a) then drop 2 a else a))
     , ppUrgent          = ppUrgentColor   . (\a -> image "window-active" ++ a ++ setTextColor ++ image "vspace") . dzenStrip 
     , ppLayout          = ppLayoutColor . wrapLayoutSwitch .
-                          (\ x -> fill (case x of
+                          (\x -> fill (case x of
                               "myTall"        -> "Tall"        ++ setFgColor ++ imagePad "tall"
                               "myMirrorTall"  -> "MirrorTall"  ++ setFgColor ++ imagePad "mtall"
                               "myFull"        -> "Full"        ++ setFgColor ++ imagePad "full"
@@ -269,7 +273,8 @@ myPP = dzenPP
                               "myMagnifyTall" -> "MagnifyTall" ++ setFgColor ++ imagePad "magnify"
                               "myIM"          -> "IM"          ++ setFgColor ++ imagePad "im"
                               "myImg"         -> "Gimp Grid"   ++ setFgColor ++ imagePad "gimp"
-                              _               -> pad x) 4)
+                              _               -> pad x) 4
+                          )
     , ppSep             = " | "
     , ppWsSep           = " "
     , ppTitle           = ppTitleColor . dzenEscape
@@ -287,7 +292,7 @@ myPP = dzenPP
       currentWsIndex w = case (elemIndex w myWorkspaces) of -- needs to be modified should I decide to use DynamicWorkspaces one day
                                 Nothing -> "1"
                                 Just n -> show (n+1)
-      wrapClickable content = "^ca(1,xdotool key super+" ++  (currentWsIndex content) ++ ")" ++ content ++ "^ca()"
+      wrapClickable (idx, label) = "^ca(1,xdotool key super+" ++  (currentWsIndex idx) ++ ")" ++ label ++ "^ca()"
       wrapLayoutSwitch content = "^ca(1,xdotool key super+space)" ++ content ++ "^ca()"
 
 -- }}}
@@ -295,8 +300,8 @@ myPP = dzenPP
 main = do
      secondBar <- spawnPipe secondBarCmd
      din <- spawnPipe statusBarCmd
-     spawn myTrayerCmd
-     spawn myXcompmgrCmd 
+     spawn myTrayCmd
+     --spawn myXcompmgrCmd 
      xmonad $ myUrgencyHook
             $ ewmh defaultConfig
         { manageHook = newManageHook 
@@ -312,6 +317,6 @@ main = do
                 { ppOutput = hPutStrLn din
                 })
 		, terminal = myTerminal
-	 }
+	    }
 
 -- vim: fdm=marker ts=4 sw=4 sts=4 et:

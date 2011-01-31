@@ -89,7 +89,7 @@ alias stardict='stardict -h'
 alias -g G='|grep -i'
 alias -g L='|less'
 
-source .zsh-aliases
+source ~/.zsh-aliases
 
 # }}}
 
@@ -143,7 +143,7 @@ NORM="%{"$'\033[00m'"%}"
 
 # prompt config {{{
 
-if [ "$USERNAME" = root ]; then
+if [ "$USERNAME" == root ]; then
 	export PS1="${RED}%m ${BLUE}~ %# ${NORM}" 
 else
 	export PS1="${GREEN}%n@%m ${BLUE}~ %# ${NORM}"

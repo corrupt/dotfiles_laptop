@@ -3,11 +3,12 @@
 # if no WM is set, default to xmonad
 if [ -z $1 ]; then
 	WM=xmonad
+	#WM=startkde
 else
 	WM=$1
 fi
 
-if [ "$WM" == "xmonad" ]; then
+if [ $WM == "xmonad" ]; then
 	# stuff I only need with xmonad
 	.bin/wprotate &
 	#gnome-power-manager & #is started by gnome-session
